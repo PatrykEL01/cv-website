@@ -1,0 +1,11 @@
+# zależności node
+node_modules/
+
+# ustawienia edytora
+.vscode/
+
+# jeśli generujesz CSS podczas builda, możesz ignorować
+static/css/output.css
+
+# inne katalogi buildowe (jeśli używasz np. dist/)
+dist/
