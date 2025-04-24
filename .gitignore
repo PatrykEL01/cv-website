@@ -9,3 +9,15 @@ static/css/output.css
 
 # inne katalogi buildowe (jeśli używasz np. dist/)
 dist/
+# Terraform files
+.terraform/
+*.tfstate
+*.tfstate.*.backup
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+.terraform.lock.hcl
