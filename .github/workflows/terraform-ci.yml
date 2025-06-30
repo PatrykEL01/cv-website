@@ -1,0 +1,82 @@
+name: Terraform CI
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+    paths:
+      - 'terraform/**' 
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'terraform/**'
+
+jobs:
+  terraform-ci:
+    name: Lint and Validate Terraform
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: latest
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: latest 
+
+      - name: Setup tfsec
+        id: tfsec 
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working_directory: ./terraform
+        
+
+      - name: Terraform Init
+        id: init
+        run: terraform -chdir=./terraform init -backend=false
+        continue-on-error: true 
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform -chdir=./terraform validate -no-color
+        if: steps.init.outcome == 'success'
+        continue-on-error: true
+
+      - name: Terraform Format Check
+        id: fmt
+        run: terraform -chdir=./terraform fmt -check -diff -no-color
+        continue-on-error: true
+
+      - name: TFLint Init
+        id: tflint-init
+        run: tflint --init
+        working-directory: ./terraform
+        if: steps.init.outcome == 'success'
+        continue-on-error: true
+
+      - name: TFLint Run
+        id: tflint
+        run: tflint --format compact --force
+        working-directory: ./terraform
+        if: steps.tflint-init.outcome == 'success'
+        continue-on-error: true 
+
+
+      - name: Check CI Status
+        if: |
+          steps.init.outcome != 'success' ||
+          steps.validate.outcome != 'success' ||
+          steps.fmt.outcome != 'success' ||
+          steps.tflint.outcome != 'success' ||
+          steps.tfsec.outcome != 'success'
+        run: |
+          echo "::error::Terraform CI checks failed. Please review the logs above."
+          exit 1

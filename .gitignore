@@ -21,3 +21,6 @@ override.tf.json
 .terraformrc
 terraform.rc
 .terraform.lock.hcl
+terraform.tfstate.backup
+terraform/old/darwin_arm64/terraform-provider-aws_v5.95.0_x5
+terraform/old/darwin_arm64/LICENSE.txt

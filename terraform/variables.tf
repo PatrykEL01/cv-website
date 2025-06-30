@@ -1,36 +1,18 @@
-variable "aws_region" {
-  description = "The AWS region where resources will be created."
+variable "gcp_project" {
+  description = "The GCP project ID"
   type        = string
-  default     = "eu-central-1"
+  default = "extended-pagoda-464212-q6"
 }
 
-variable "s3_bucket_name" {
-  description = "The name of the S3 bucket for the portfolio website."
+variable "gcp_region" {
+  description = "The GCP region"
   type        = string
+  default     = "europe-west2"
 }
 
-variable "common_tags" {
-  description = "Common tags to apply to all resources."
-  type        = map(string)
-  default = {
-    Project   = "PortfolioWebsite"
-    ManagedBy = "Terraform"
-  }
-}
 
-variable "cloudfront_price_class" {
-  description = "The price class for the CloudFront distribution."
+variable "gcp_bucket_name" {
+  description = "The name of the GCP storage bucket"
   type        = string
-  default     = "PriceClass_100"
-}
-
-variable "webiste_filename" {
-  description = "The name of the index file for the website."
-  type        = string
-  default     = "index.html"
-}
-variable "website_error_filename" {
-  description = "The name of the error file for the website."
-  type        = string
-  default     = "error.html"
+  default     = "static-website-34296"
 }
