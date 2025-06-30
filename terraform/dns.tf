@@ -5,6 +5,16 @@ resource "google_dns_managed_zone" "static_website_zone" {
   labels = {
     environment = "production"
   }
+  
+  # Enable DNSSEC for enhanced security
+  dnssec_config {
+    state         = "on"
+    non_existence = "nsec3"
+  }
+  
+  depends_on = [
+    google_project_service.dns_api
+  ]
 }
 
 resource "google_dns_record_set" "www" {
