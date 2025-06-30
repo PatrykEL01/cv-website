@@ -5,13 +5,13 @@ resource "google_dns_managed_zone" "static_website_zone" {
   labels = {
     environment = "production"
   }
-  
+
   # Enable DNSSEC for enhanced security
   dnssec_config {
     state         = "on"
     non_existence = "nsec3"
   }
-  
+
   depends_on = [
     google_project_service.dns_api
   ]
@@ -22,10 +22,10 @@ resource "google_dns_record_set" "www" {
   managed_zone = var.dns_zone
   type         = "CNAME"
   ttl          = 300
-  rrdatas      = ["${var.domain}"]
+  rrdatas      = [var.domain]
 }
 resource "google_dns_record_set" "root" {
-  name         = "${var.domain}"
+  name         = var.domain
   managed_zone = var.dns_zone
   type         = "A"
   ttl          = 300
