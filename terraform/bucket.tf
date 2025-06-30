@@ -13,6 +13,7 @@ resource "google_storage_bucket" "static_website" {
   force_destroy = true
 }
 
+# tfsec:ignore:google-storage-no-public-access reason: Public bucket required for static website hosting
 resource "google_storage_bucket_iam_member" "public_rule" {
   bucket = google_storage_bucket.static_website.name
   role   = "roles/storage.objectViewer"
