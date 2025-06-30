@@ -5,8 +5,8 @@ output "static_website_bucket_name" {
 }
 
 output "static_website_bucket_url" {
-  description = "Public URL of the static website bucket"
-  value       = "https://storage.googleapis.com/${google_storage_bucket.static_website.name}/index.html"
+  description = "Public URL of the static website"
+  value       = "https://${google_storage_bucket.static_website.name}.storage.googleapis.com/index.html"
 }
 
 output "terraform_state_bucket_name" {
@@ -35,4 +35,9 @@ output "project_id" {
 output "bucket_region" {
   description = "Region where the buckets are located"
   value       = google_storage_bucket.static_website.location
+}
+
+output "static_website_url" {
+  description = "Direct website URL (GCS website endpoint)"  
+  value       = google_storage_bucket.static_website.website[0].main_page_suffix != "" ? "https://${google_storage_bucket.static_website.name}.storage.googleapis.com" : null
 }
