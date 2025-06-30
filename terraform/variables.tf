@@ -16,3 +16,17 @@ variable "gcp_bucket_name" {
   type        = string
   default     = "static-website-34296"
 }
+
+variable "domain" {
+  description = "The domain name for the static website"
+  type        = string
+  default     = "patryk-leszczynski.cloud."
+  
+}
+
+variable "dns_zone" {
+  description = "The DNS zone for the static website"
+  type        = string
+  default     = "static-zone"
+  
+}
