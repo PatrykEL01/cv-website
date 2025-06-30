@@ -30,4 +30,3 @@ jobs:
       - name: Deploy static site to GCS bucket
         run: |
           gsutil -m rsync -r -d ./static gs://${{ env.GCS_BUCKET_NAME }}
-          gsutil -m acl ch -r -u AllUsers:R gs://${{ env.GCS_BUCKET_NAME }}/*
