@@ -1,6 +1,10 @@
 resource "google_compute_url_map" "static" {
   name            = "static-url-map"
   default_service = google_compute_backend_bucket.static.id
+  
+  depends_on = [
+    google_project_service.compute_api
+  ]
 }
 
 resource "google_compute_managed_ssl_certificate" "cert" {
