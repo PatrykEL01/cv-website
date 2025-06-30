@@ -15,6 +15,13 @@ resource "google_storage_bucket" "static_website" {
   }
   
   force_destroy = true
+  
+  # Ensure KMS permissions are set before creating bucket
+  depends_on = [
+    google_kms_crypto_key_iam_member.storage_kms_key,
+    google_project_service.storage_api,
+    google_project_service.kms_api
+  ]
 }
 
 # tfsec:ignore:google-storage-no-public-access reason: Public bucket required for static website hosting

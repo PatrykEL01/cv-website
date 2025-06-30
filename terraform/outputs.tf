@@ -41,3 +41,14 @@ output "static_website_url" {
   description = "Direct website URL (GCS website endpoint)"  
   value       = google_storage_bucket.static_website.website[0].main_page_suffix != "" ? "https://${google_storage_bucket.static_website.name}.storage.googleapis.com" : null
 }
+
+# KMS outputs
+output "kms_key_ring_id" {
+  description = "ID of the KMS key ring"
+  value       = google_kms_key_ring.bucket_keyring.id
+}
+
+output "kms_crypto_key_id" {
+  description = "ID of the KMS crypto key used for bucket encryption"
+  value       = google_kms_crypto_key.bucket_key.id
+}
