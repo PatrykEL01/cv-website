@@ -1,7 +1,7 @@
 variable "gcp_project" {
   description = "The GCP project ID"
   type        = string
-  default = "extended-pagoda-464212-q6"
+  default     = "extended-pagoda-464212-q6"
 }
 
 variable "gcp_region" {

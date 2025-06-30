@@ -38,7 +38,7 @@ output "bucket_region" {
 }
 
 output "static_website_url" {
-  description = "Direct website URL (GCS website endpoint)"  
+  description = "Direct website URL (GCS website endpoint)"
   value       = google_storage_bucket.static_website.website[0].main_page_suffix != "" ? "https://${google_storage_bucket.static_website.name}.storage.googleapis.com" : null
 }
 
