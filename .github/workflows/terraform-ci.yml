@@ -3,7 +3,6 @@ name: Terraform CI
 on:
   push:
     branches:
-      - main
       - dev
     paths:
       - 'terraform/**' 
@@ -13,6 +12,9 @@ on:
     paths:
       - 'terraform/**'
   workflow_dispatch:
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   terraform-ci:
