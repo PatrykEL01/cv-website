@@ -73,7 +73,7 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
 
       - name: Upload Terraform Plan Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: terraform-plan
           path: |
