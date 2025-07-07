@@ -20,7 +20,7 @@ variable "gcp_bucket_name" {
 variable "domain" {
   description = "The domain name for the static website"
   type        = string
-  default     = "patryk-leszczynski.cloud."
+  default     = "patryk-leszczynski.cloud"
 
 }
 
