@@ -1,6 +1,6 @@
 resource "google_dns_managed_zone" "static_website_zone" {
   name        = "static-zone"
-  dns_name    = var.domain
+  dns_name    = "${var.domain}."
   description = "Static website DNS zone"
   labels = {
     environment = "production"
@@ -18,14 +18,14 @@ resource "google_dns_managed_zone" "static_website_zone" {
 }
 
 resource "google_dns_record_set" "www" {
-  name         = "www.${var.domain}"
+  name         = "www.${var.domain}."
   managed_zone = var.dns_zone
   type         = "CNAME"
   ttl          = 300
-  rrdatas      = [var.domain]
+  rrdatas      = ["${var.domain}."]
 }
 resource "google_dns_record_set" "root" {
-  name         = var.domain
+  name         = "${var.domain}."
   managed_zone = var.dns_zone
   type         = "A"
   ttl          = 300
