@@ -1,0 +1,150 @@
+name: Terraform CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/terraform-cd.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'terraform/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  TF_WORKING_DIR: ./terraform
+
+jobs:
+  terraform-plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    outputs:
+      tfplanExitCode: ${{ steps.plan.outputs.exitcode }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+      - name: Terraform Format
+        run: terraform fmt -check
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        continue-on-error: true
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+      - name: Terraform Plan
+        id: plan
+        run: |
+          terraform plan -out=tfplan.binary -detailed-exitcode -no-color
+          echo "exitcode=$?" >> $GITHUB_OUTPUT
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        continue-on-error: true
+
+      - name: Create Human-Readable Plan
+        if: steps.plan.outcome == 'success'
+        run: |
+          terraform show -no-color tfplan.binary > tfplan.txt
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+      - name: Upload Terraform Plan Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: terraform-plan
+          path: |
+            ${{ env.TF_WORKING_DIR }}/tfplan.binary
+            ${{ env.TF_WORKING_DIR }}/tfplan.txt
+          retention-days: 5
+
+      - name: Comment Plan on PR
+        uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const planOutput = fs.readFileSync('${{ env.TF_WORKING_DIR }}/tfplan.txt', 'utf8');
+            const maxSize = 65536;
+            const planSummary = planOutput.length > maxSize 
+              ? planOutput.substr(0, maxSize) + "\n... Output truncated due to size ..." 
+              : planOutput;
+            const body = `### Terraform Plan 📝\`${{ steps.plan.outcome }}\`
+            
+            <details><summary>Show Plan</summary>
+            
+            \`\`\`terraform
+            ${planSummary}
+            \`\`\`
+            
+            </details>`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body
+            })
+
+  terraform-apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    needs: terraform-plan
+    if: |
+      github.ref == 'refs/heads/main' && 
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+      - name: Download Terraform Plan Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: terraform-plan
+          path: ${{ env.TF_WORKING_DIR }}
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan.binary
+        working-directory: ${{ env.TF_WORKING_DIR }}
